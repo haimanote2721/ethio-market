@@ -1,1 +1,138 @@
-index.html
+
+<!DOCTYPE html>
+<html lang="am">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETHIO MARKET | የኢትዮጵያ ገበያ</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f6f8;color:#222}
+header{background:#087443;color:white;padding:22px 16px}
+.logo{font-size:27px;font-weight:bold}
+header p{margin:8px 0 0;font-size:14px}
+nav{background:#fff;padding:13px;display:flex;gap:18px;justify-content:center;box-shadow:0 2px 5px #ddd}
+nav a{color:#087443;text-decoration:none;font-weight:bold}
+.container{max-width:1050px;margin:auto;padding:18px}
+.hero{background:linear-gradient(120deg,#087443,#13a66a);color:white;padding:30px 20px;border-radius:14px;text-align:center}
+.hero h1{font-size:26px;margin:0 0 12px}
+.search{width:100%;padding:14px;border:1px solid #ddd;border-radius:9px;font-size:16px;margin-top:18px}
+h2{color:#087443;margin-top:28px}
+.categories{display:flex;gap:9px;flex-wrap:wrap}
+.categories button{border:1px solid #087443;background:white;color:#087443;padding:10px 14px;border-radius:20px}
+.categories button.active{background:#087443;color:white}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:14px}
+.card{background:white;border-radius:12px;padding:14px;box-shadow:0 2px 8px #ddd}
+.picture{height:105px;background:#e8f3ed;border-radius:9px;display:grid;place-items:center;font-size:48px}
+.card h3{font-size:16px;margin:12px 0 7px}
+.price{color:#087443;font-weight:bold}
+.card p{font-size:13px;color:#666}
+.formbox{background:white;padding:18px;border-radius:12px;margin-top:25px}
+input,select,textarea{width:100%;padding:12px;margin:8px 0;border:1px solid #ccc;border-radius:7px;font-size:15px}
+.primary{background:#087443;color:white;border:0;padding:13px 18px;border-radius:8px;font-size:15px;width:100%;font-weight:bold}
+footer{background:#153c2c;color:white;text-align:center;padding:25px;margin-top:35px;font-size:14px}
+.note{font-size:12px;color:#777}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">🇪🇹 ETHIO MARKET</div>
+ <p>የኢትዮጵያ የመስመር ላይ ገበያ</p>
+</header>
+<nav>
+ <a href="#home">መነሻ</a>
+ <a href="#products">ምርቶች</a>
+ <a href="#sell">ምርት ሽጥ</a>
+</nav>
+<main class="container">
+<section class="hero" id="home">
+ <h1>ይግዙ። ይሽጡ። ያድጉ!</h1>
+ <p>የሚፈልጉትን ምርት በቀላሉ ያግኙ</p>
+ <input class="search" id="search" placeholder="ምርት ይፈልጉ..." oninput="showProducts()">
+</section>
+
+<h2>የምርት ምድቦች</h2>
+<div class="categories">
+ <button class="active" onclick="filter('ሁሉም',this)">ሁሉም</button>
+ <button onclick="filter('ኤሌክትሮኒክስ',this)">📱 ኤሌክትሮኒክስ</button>
+ <button onclick="filter('ልብስ',this)">👕 ልብስ</button>
+ <button onclick="filter('ምግብ',this)">🍎 ምግብ</button>
+ <button onclick="filter('ቤት',this)">🏠 የቤት እቃ</button>
+</div>
+
+<h2 id="products">የቀረቡ ምርቶች</h2>
+<div class="products" id="productList"></div>
+
+<section class="formbox" id="sell">
+ <h2>ምርትዎን ያስገቡ</h2>
+ <p>ሻጭ ከሆኑ ምርትዎን እዚህ ይመዝግቡ።</p>
+ <form id="sellForm">
+  <input id="name" placeholder="የምርት ስም" required>
+  <input id="price" type="number" min="1" placeholder="ዋጋ በብር" required>
+  <select id="category">
+   <option value="ኤሌክትሮኒክስ">ኤሌክትሮኒክስ</option>
+   <option value="ልብስ">ልብስ</option>
+   <option value="ምግብ">ምግብ</option>
+   <option value="ቤት">የቤት እቃ</option>
+  </select>
+  <input id="seller" placeholder="የሻጭ ስም" required>
+  <button class="primary" type="submit">ምርት አስገባ</button>
+ </form>
+ <p class="note">ማስታወሻ፦ ይህ የመጀመሪያ ሙከራ ስሪት ነው። ምርቶች በዚህ ብሮውዘር ውስጥ ብቻ ይቀመጣሉ።</p>
+</section>
+</main>
+<footer>
+ <strong>ETHIO MARKET 🇪🇹</strong>
+ <p>የኢትዮጵያ ገበያ በአንድ ቦታ</p>
+ <p>© 2026 ETHIO MARKET</p>
+</footer>
+<script>
+const samples=[
+ {name:"ስማርት ስልክ",price:12000,category:"ኤሌክትሮኒክስ",seller:"ሻጭ 1",icon:"📱"},
+ {name:"የወንዶች ልብስ",price:850,category:"ልብስ",seller:"ሻጭ 2",icon:"👕"},
+ {name:"ቡና",price:450,category:"ምግብ",seller:"ሻጭ 3",icon:"☕"},
+ {name:"ወንበር",price:2200,category:"ቤት",seller:"ሻጭ 4",icon:"🪑"}
+];
+let products=JSON.parse(localStorage.getItem("ethioProducts")||"null")||samples;
+let selected="ሁሉም";
+function showProducts(){
+ const q=document.getElementById("search").value.toLowerCase();
+ const list=products.filter(p=>(selected==="ሁሉም"||p.category===selected)&&p.name.toLowerCase().includes(q));
+ document.getElementById("productList").innerHTML=list.length?list.map(p=>`
+ <article class="card">
+ <div class="picture">${p.icon||"📦"}</div>
+ <h3>${escapeText(p.name)}</h3>
+ <div class="price">${Number(p.price).toLocaleString()} ብር</div>
+ <p>ምድብ: ${escapeText(p.category)}</p>
+ <p>ሻጭ: ${escapeText(p.seller)}</p>
+ </article>`).join(""):"<p>የተፈለገው ምርት አልተገኘም።</p>";
+}
+function escapeText(s){
+ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function filter(category,btn){
+ selected=category;
+ document.querySelectorAll(".categories button").forEach(b=>b.classList.remove("active"));
+ btn.classList.add("active");
+ showProducts();
+}
+document.getElementById("sellForm").addEventListener("submit",function(e){
+ e.preventDefault();
+ products.push({
+ name:document.getElementById("name").value,
+ price:Number(document.getElementById("price").value),
+ category:document.getElementById("category").value,
+ seller:document.getElementById("seller").value,
+ icon:"📦"
+ });
+ localStorage.setItem("ethioProducts",JSON.stringify(products));
+ this.reset();
+ selected="ሁሉም";
+ document.querySelectorAll(".categories button").forEach((b,i)=>b.classList.toggle("active",i===0));
+ showProducts();
+ alert("ምርትዎ በዚህ መሣሪያ ላይ ተመዝግቧል!");
+});
+showProducts();
+</script>
+</body>
+</html>
