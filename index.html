@@ -28,10 +28,12 @@ h2{color:#087443;margin-top:28px}
 .price{color:#087443;font-weight:bold}
 .card p{font-size:13px;color:#666}
 .formbox{background:white;padding:18px;border-radius:12px;margin-top:25px}
-input,select,textarea{width:100%;padding:12px;margin:8px 0;border:1px solid #ccc;border-radius:7px;font-size:15px}
+input,select{width:100%;padding:12px;margin:8px 0;border:1px solid #ccc;border-radius:7px;font-size:15px}
 .primary{background:#087443;color:white;border:0;padding:13px 18px;border-radius:8px;font-size:15px;width:100%;font-weight:bold}
+.primary:disabled{opacity:.6}
 footer{background:#153c2c;color:white;text-align:center;padding:25px;margin-top:35px;font-size:14px}
 .note{font-size:12px;color:#777}
+#status{padding:10px;border-radius:8px;font-size:14px;margin-top:12px}
 </style>
 </head>
 <body>
@@ -44,6 +46,7 @@ footer{background:#153c2c;color:white;text-align:center;padding:25px;margin-top:
  <a href="#products">ምርቶች</a>
  <a href="#sell">ምርት ሽጥ</a>
 </nav>
+
 <main class="container">
 <section class="hero" id="home">
  <h1>ይግዙ። ይሽጡ። ያድጉ!</h1>
@@ -61,7 +64,9 @@ footer{background:#153c2c;color:white;text-align:center;padding:25px;margin-top:
 </div>
 
 <h2 id="products">የቀረቡ ምርቶች</h2>
-<div class="products" id="productList"></div>
+<div class="products" id="productList">
+ <p>ምርቶች በመጫን ላይ...</p>
+</div>
 
 <section class="formbox" id="sell">
  <h2>ምርትዎን ያስገቡ</h2>
@@ -69,70 +74,134 @@ footer{background:#153c2c;color:white;text-align:center;padding:25px;margin-top:
  <form id="sellForm">
   <input id="name" placeholder="የምርት ስም" required>
   <input id="price" type="number" min="1" placeholder="ዋጋ በብር" required>
-  <select id="category">
+  <select id="category" required>
    <option value="ኤሌክትሮኒክስ">ኤሌክትሮኒክስ</option>
    <option value="ልብስ">ልብስ</option>
    <option value="ምግብ">ምግብ</option>
    <option value="ቤት">የቤት እቃ</option>
   </select>
   <input id="seller" placeholder="የሻጭ ስም" required>
-  <button class="primary" type="submit">ምርት አስገባ</button>
+  <input id="phone" type="tel" placeholder="የስልክ ቁጥር" required>
+  <button class="primary" id="submitBtn" type="submit">ምርት አስገባ</button>
  </form>
- <p class="note">ማስታወሻ፦ ይህ የመጀመሪያ ሙከራ ስሪት ነው። ምርቶች በዚህ ብሮውዘር ውስጥ ብቻ ይቀመጣሉ።</p>
+ <div id="status"></div>
+ <p class="note">ማስታወሻ፦ ምርትዎ ከገባ በኋላ በአስተዳዳሪ እስኪፈቀድ ድረስ ለገዢዎች አይታይም።</p>
 </section>
 </main>
+
 <footer>
  <strong>ETHIO MARKET 🇪🇹</strong>
  <p>የኢትዮጵያ ገበያ በአንድ ቦታ</p>
  <p>© 2026 ETHIO MARKET</p>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const samples=[
- {name:"ስማርት ስልክ",price:12000,category:"ኤሌክትሮኒክስ",seller:"ሻጭ 1",icon:"📱"},
- {name:"የወንዶች ልብስ",price:850,category:"ልብስ",seller:"ሻጭ 2",icon:"👕"},
- {name:"ቡና",price:450,category:"ምግብ",seller:"ሻጭ 3",icon:"☕"},
- {name:"ወንበር",price:2200,category:"ቤት",seller:"ሻጭ 4",icon:"🪑"}
-];
-let products=JSON.parse(localStorage.getItem("ethioProducts")||"null")||samples;
-let selected="ሁሉም";
+const SUPABASE_URL = "https://klijpcjpzlfhtdtfeags.supabase.co";
+const SUPABASE_KEY = "sb_publishable_i8WdO3O6mMczwd7IQYaLEQ_UaayXkGV";
+
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let products = [];
+let selected = "ሁሉም";
+
+function escapeText(s){
+ return String(s ?? "").replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+
+function getIcon(category){
+ return {
+ "ኤሌክትሮኒክስ":"📱",
+ "ልብስ":"👕",
+ "ምግብ":"☕",
+ "ቤት":"🪑"
+ }[category] || "📦";
+}
+
 function showProducts(){
- const q=document.getElementById("search").value.toLowerCase();
- const list=products.filter(p=>(selected==="ሁሉም"||p.category===selected)&&p.name.toLowerCase().includes(q));
- document.getElementById("productList").innerHTML=list.length?list.map(p=>`
+ const q = document.getElementById("search").value.toLowerCase();
+ const list = products.filter(p =>
+ (selected==="ሁሉም" || p.category===selected) &&
+ String(p.name).toLowerCase().includes(q)
+ );
+
+ document.getElementById("productList").innerHTML =
+ list.length ? list.map(p=>`
  <article class="card">
- <div class="picture">${p.icon||"📦"}</div>
+ <div class="picture">${getIcon(p.category)}</div>
  <h3>${escapeText(p.name)}</h3>
  <div class="price">${Number(p.price).toLocaleString()} ብር</div>
  <p>ምድብ: ${escapeText(p.category)}</p>
  <p>ሻጭ: ${escapeText(p.seller)}</p>
- </article>`).join(""):"<p>የተፈለገው ምርት አልተገኘም።</p>";
+ <p>ስልክ: ${escapeText(p.phone)}</p>
+ </article>`).join("") :
+ "<p>የተፈለገው ምርት አልተገኘም።</p>";
 }
-function escapeText(s){
- return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-}
+
 function filter(category,btn){
- selected=category;
- document.querySelectorAll(".categories button").forEach(b=>b.classList.remove("active"));
+ selected = category;
+ document.querySelectorAll(".categories button")
+ .forEach(b=>b.classList.remove("active"));
  btn.classList.add("active");
  showProducts();
 }
-document.getElementById("sellForm").addEventListener("submit",function(e){
+
+async function loadProducts(){
+ const {data,error} = await db
+ .from("products")
+ .select("id,name,price,category,seller,phone,images_url,created_at,approved")
+ .eq("approved",true)
+ .order("created_at",{ascending:false});
+
+ if(error){
+ document.getElementById("productList").innerHTML =
+ "<p>ምርቶችን ማምጣት አልተቻለም። እባክዎ ቆይተው ይሞክሩ።</p>";
+ console.error(error);
+ return;
+ }
+
+ products = data || [];
+ showProducts();
+}
+
+document.getElementById("sellForm").addEventListener("submit",async function(e){
  e.preventDefault();
- products.push({
- name:document.getElementById("name").value,
+
+ const btn = document.getElementById("submitBtn");
+ const status = document.getElementById("status");
+ btn.disabled = true;
+ btn.textContent = "በመላክ ላይ...";
+ status.textContent = "";
+
+ const product = {
+ name:document.getElementById("name").value.trim(),
  price:Number(document.getElementById("price").value),
  category:document.getElementById("category").value,
- seller:document.getElementById("seller").value,
- icon:"📦"
- });
- localStorage.setItem("ethioProducts",JSON.stringify(products));
+ seller:document.getElementById("seller").value.trim(),
+ phone:document.getElementById("phone").value.trim(),
+ approved:false
+ };
+
+ const {error} = await db.from("products").insert([product]);
+
+ btn.disabled = false;
+ btn.textContent = "ምርት አስገባ";
+
+ if(error){
+ status.textContent = "ስህተት ተፈጥሯል። እባክዎ እንደገና ይሞክሩ።";
+ status.style.background = "#ffe5e5";
+ console.error(error);
+ return;
+ }
+
  this.reset();
- selected="ሁሉም";
- document.querySelectorAll(".categories button").forEach((b,i)=>b.classList.toggle("active",i===0));
- showProducts();
- alert("ምርትዎ በዚህ መሣሪያ ላይ ተመዝግቧል!");
+ status.textContent = "ምርትዎ በተሳካ ሁኔታ ተልኳል። ከተፈቀደ በኋላ ይታያል።";
+ status.style.background = "#e4f5e9";
 });
-showProducts();
+
+loadProducts();
 </script>
 </body>
 </html>
