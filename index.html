@@ -151,8 +151,7 @@ function filter(category,btn){
 async function loadProducts(){
  const {data,error} = await db
  .from("products")
- .select("id,name,price,category,seller,phone,images_url,created_at,approved")
- .eq("approved",true)
+ .select("id,name,price,category,seller,phone,image,created_at,approved")
  .order("created_at",{ascending:false});
 
  if(error){
