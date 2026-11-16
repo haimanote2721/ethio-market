@@ -156,10 +156,10 @@ async function loadProducts(){
  .order("created_at",{ascending:false});
 
  if(error){
- document.getElementById("productList").innerHTML =
- "<p>ምርቶችን ማምጣት አልተቻለም። እባክዎ ቆይተው ይሞክሩ።</p>";
- console.error(error);
- return;
+   const box = document.getElementById("productList");
+   box.textContent = "Supabase Error: " + error.message + " | Code: " + error.code;
+   console.error(error);
+   return;
  }
 
  products = data || [];
