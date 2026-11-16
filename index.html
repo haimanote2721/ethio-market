@@ -152,6 +152,7 @@ async function loadProducts(){
  const {data,error} = await db
  .from("products")
  .select("id,name,price,category,seller,phone,image_url,created_at,approved")
+ .eq("approved",true)
  .order("created_at",{ascending:false});
 
  if(error){
